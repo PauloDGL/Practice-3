@@ -1,0 +1,99 @@
+module ALU_Micros1(
+input [7:0] iA,
+input [7:0] iB,  // ALU 8-bit Inputs A y B                 
+input [3:0] ALU_Sel,// ALU Selector de 4-bits
+input iClk,
+output [7:0] oRESALU,
+output [4:0] oBanderas// ALU 8-bit Output
+ ); 
+ 
+   reg [8:0] ALU_Resultadomedio;
+	reg [7:0] ALU_D;
+	reg [7:0] ALU_Q;
+	reg [4:0] Banderas_D;
+	reg [4:0] Banderas_Q;
+	
+	assign oRESALU = ALU_Q;
+	assign OBanderas = Banderas_Q;
+	
+	
+ 
+/////////////////////////////////////////Parte Secuencial//////////////////////////////////////////
+ always @(posedge iClk) 
+ begin 
+     ALU_Q = ALU_D;
+	  Banderas_Q = Banderas_D;
+ end 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////Parte combinacional////////////////////////////////////////
+    always @(*)
+    begin
+        case(ALU_Sel)
+		  4'b0000: begin // Multiplicacion 
+           ALU_Resultadomedio [8:0] <= iA * iB;
+			  ALU_Q [7:0] <= ALU_Resultadomedio [7:0]
+			  ALU_Carry <= ALU_Resultadomedio [8:7]
+			        end 
+		  4'b0001: begin // Division
+           ALU_Resultadomedio [8:0] <= iA / iB;
+			  ALU_D [7:0] <= ALU_Resultadomedio [7:0];
+			  ALU_Carry <= ALU_Resultadomedio [8:7];
+			        end
+        4'b0010: begin // Incremento
+           ALU_Resultadomedio [8:0] <= iA + 1'b1;
+			  ALU_D [7:0] <= ALU_Resultadomedio [7:0];
+			  ALU_Carry <= ALU_Resultadomedio [8:7];
+			        end
+        4'b0011: begin // Decremento
+           ALU_Resultadomedio [8:0] <= iA - 1'b1;
+			  ALU_D [7:0] <= ALU_Resultadomedio [7:0];
+			  ALU_Carry <= ALU_Resultadomedio [8:7];
+			        end
+        4'b0100: begin // AND
+           ALU_Resultadomedio [8:0] <= iA & iB;
+			  ALU_D [7:0] <= ALU_Resultadomedio [7:0];
+			  ALU_Carry <= ALU_Resultadomedio [8:7];
+			        end
+        4'b0111: begin // OR
+           ALU_Resultadomedio [8:0] <= iA | iB;
+			  ALU_D [7:0] <= ALU_Resultadomedio [7:0];
+			  ALU_Carry <= ALU_Resultadomedio [8:7];
+			        end
+        4'b1000: begin // NOT
+           ALU_Resultadomedio [8:0] <= !iA;
+			  ALU_D [7:0] <= ALU_Resultadomedio [7:0];
+			  ALU_Carry <= ALU_Resultadomedio [8:7];
+			        end
+        4'b1000: begin // XOR
+           ALU_Resultadomedio [8:0] <= iA^iB;
+			  ALU_D [7:0] <= ALU_Resultadomedio [7:0];
+			  ALU_Carry <= ALU_Resultadomedio [8:7];
+			        end
+					  default: 
+					  begin 
+					  ALU_D<= ALU_Q;
+					  end
+		  endcase
+    end
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////Declaración de Banderas//////////////////////////////////////////
+if(ALU_Q == 8'b0)
+ begin 
+   ALU_D[0]=1'b1;
+ end
+    else
+	   begin
+	    ALU_D[0]= 1'b0;	
+		end 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
